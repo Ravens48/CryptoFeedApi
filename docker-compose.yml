@@ -1,0 +1,45 @@
+services:
+  mongo:
+    container_name: mongo-database
+    image: mongo:5.0
+    env_file: ./.env
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=$DB_USER
+      - MONGO_INITDB_DATABASE=$DB_DATABASE
+      - MONGO_INITDB_ROOT_PASSWORD=$DB_PASSWORD
+    restart: unless-stopped
+    networks:
+      - mongo-networks
+    ports:
+      - 27018:27017
+    volumes:
+      - mongodata:/data/db
+
+  node_api:
+    depends_on:
+      - mongo
+    build:
+      context: .
+      dockerfile: ./Dockerfile.dev
+    env_file: ./.env
+    links:
+      - mongo
+    environment:
+      - DB_HOST=mongo
+      - DB_USER=$DB_USER
+      - DB_PASSWORD=$DB_PASSWORD
+      - DB_NAME=$DB_DATABASE
+    volumes:
+      - .:/app
+      - /app/node_modules
+    networks:
+      - mongo-networks
+    ports:
+      - "3000:3000"
+    tty: true
+
+volumes:
+  mongodata:
+networks:
+  mongo-networks:
+    external: true

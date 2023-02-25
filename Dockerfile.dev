@@ -1,0 +1,19 @@
+FROM node:18
+
+WORKDIR /app
+
+# Add node_modules in our PATH
+# ENV PATH /app/node_modules/.bin:$PATH
+
+#ENV CHOKIDAR_USEPOLLING=true
+
+COPY package*.json ./
+
+RUN npm install 
+
+COPY . ./
+
+RUN chown -R node /app/node_modules
+
+EXPOSE 3000
+CMD ["npm", "start"]
